@@ -35,5 +35,5 @@ FROM prow.job_spec
 GROUP BY cluster
 ORDER BY count(*) DESC;"
 
-echo total ($(psql -U infrasnoop -h infrasnoop -At -c "SELECT SUM(count(*)) OVER () FROM prow.job_spec;"))
+psql -U infrasnoop -h infrasnoop -At -c "SELECT SUM(count(*)) OVER () FROM prow.job_spec;"
 EOF
