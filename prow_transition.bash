@@ -7,19 +7,19 @@ cleanup() {
   kind delete cluster --name=prow-stats > /dev/null
 }
 
-trap cleanup EXIT ERR
+# trap cleanup EXIT ERR
 
-echo "Creating cluster, please wait.."
-kind create cluster -q --name=prow-stats 
-flux install \
-    --namespace=flux-system \
-    --network-policy=false \
-    --components=source-controller,helm-controller 
-kubectl apply -f https://raw.githubusercontent.com/cncf-infra/infrasnoop/canon/manifests/infrasnoop.yaml
-sleep 3
-kubectl wait --for=condition=ready pod/infrasnoop-0 -n default
+#echo "Creating cluster, please wait.."
+#kind create cluster -q --name=prow-stats 
+#flux install \
+#    --namespace=flux-system \
+#    --network-policy=false \
+#    --components=source-controller,helm-controller 
+#kubectl apply -f https://raw.githubusercontent.com/cncf-infra/infrasnoop/canon/manifests/infrasnoop.yaml
+#sleep 3
+#kubectl wait --for=condition=ready pod/infrasnoop-0 -n default
 
-kubectl cp -n default ./load_data.bash infrasnoop-0:/tmp/
+#kubectl cp -n default ./load_data.bash infrasnoop-0:/tmp/
 
 kubectl exec -it pod/infrasnoop-0 -n default -- /bin/bash <<'EOF'
 echo "Loading data, please wait.."
@@ -35,5 +35,5 @@ FROM prow.job_spec
 GROUP BY cluster
 ORDER BY count(*) DESC;"
 
-psql -U infrasnoop -h infrasnoop -At -c "SELECT SUM(count(*)) OVER () FROM prow.job_spec;"
+echo "total: (`psql -U infrasnoop -h infrasnoop -At -c 'SELECT SUM(count(*)) OVER () FROM prow.job_spec;'`)"
 EOF
